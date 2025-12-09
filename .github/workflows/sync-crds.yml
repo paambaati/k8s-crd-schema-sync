@@ -1,0 +1,66 @@
+name: CRD Schema Sync
+
+on:
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+    inputs:
+      createPR:
+        description: "Create PR on datreeio/CRDs-catalog"
+        required: false
+        default: false
+        type: boolean
+      dryRun:
+        description: "Dry run (don't actually create PR)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  sync-crds:
+    name: Sync CRD Schemas
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: ./crd-schema-sync
+
+      - name: Run sync (dry run)
+        if: github.event_name == 'schedule' || !inputs.createPR
+        run: bun src/index.ts
+        working-directory: ./crd-schema-sync
+        env:
+          CRD_SYNC_OUTPUT_DIR: "./schemas"
+          CRD_SYNC_VERBOSE: "true"
+
+      - name: Run sync with PR creation
+        if: github.event_name == 'workflow_dispatch' && inputs.createPR
+        run: bun src/index.ts
+        working-directory: ./crd-schema-sync
+        env:
+          CRD_SYNC_OUTPUT_DIR: "./schemas"
+          CRD_SYNC_CREATE_PR: "true"
+          CRD_SYNC_TARGET_REPO: "datreeio/CRDs-catalog"
+          CRD_SYNC_DRY_RUN: ${{ inputs.dryRun }}
+          CRD_SYNC_VERBOSE: "true"
+          GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
+
+      - name: Upload schemas artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crd-schemas
+          path: crd-schema-sync/schemas/
+          retention-days: 30

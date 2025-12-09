@@ -1,0 +1,36 @@
+{
+    "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/package.json",
+    "name": "crd-schema-sync",
+    "version": "0.1.0",
+    "description": "Automated CRD schema generation and syncing to public CRD catalogs",
+    "type": "module",
+    "main": "./src/index.ts",
+    "scripts": {
+        "dev": "bun --watch src/index.ts",
+        "start": "bun src/index.ts",
+        "sync": "bun src/index.ts --sync",
+        "sync-pr": "bun src/index.ts --sync --create-pr",
+        "lint": "oxlint src/",
+        "format": "oxfmt --write src/",
+        "format:check": "oxfmt --check src/"
+    },
+    "dependencies": {
+        "@octokit/rest": "22.0.1",
+        "cac": "6.7.14",
+        "js-yaml": "4.1.1",
+        "openapi-schema-validator": "12.1.3",
+        "pino": "10.1.0",
+        "yaml": "2.8.2"
+    },
+    "devDependencies": {
+        "oxlint": "1.32.0",
+        "oxfmt": "0.17.0",
+        "@types/bun": "latest",
+        "@types/js-yaml": "4.0.9",
+        "@types/node": "20.10.6",
+        "typescript": "5.9.3"
+    },
+    "engines": {
+        "bun": ">=1.0.0"
+    }
+}
