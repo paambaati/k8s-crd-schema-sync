@@ -37,24 +37,22 @@ jobs:
         run: bun install --production --frozen-lockfile
 
       - name: Download CRDs
-        if: github.event_name == 'schedule' || inputs.dryRun
         run: bun src/index.ts download --verbose --work-dir "./schemas"
 
       - name: Publish CRD schemas via PR
-        if: github.event_name == 'workflow_dispatch'
-        id: sync
+        id: publish
         run: bun src/index.ts publish --verbose --work-dir "./schemas" --target-repo "${{ inputs.targetRepo || 'paambaati/CRDs-catalog' }}" ${{ inputs.dryRun && '--dry-run' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
 
       - name: Add PR link to summary
-        if: github.event_name == 'workflow_dispatch' && !inputs.dryRun && steps.sync.outputs.pr-url
+        if: github.event_name == 'workflow_dispatch' && !inputs.dryRun && steps.publish.outputs.pr-url
         run: |
           echo "## CRD Schema Sync Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ Schemas synced successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View Pull Request](${{ steps.sync.outputs.pr-url }})" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Pull Request](${{ steps.publish.outputs.pr-url }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload schemas artifact
         if: always()
