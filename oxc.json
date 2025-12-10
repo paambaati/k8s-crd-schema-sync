@@ -1,6 +1,0 @@
-{
-  "extends": ["oxc/recommended"],
-  "rules": {
-    "no-console": "error"
-  }
-}

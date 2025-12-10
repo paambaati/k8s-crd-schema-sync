@@ -1,0 +1,7 @@
+{
+  "extends": ["oxc/recommended"],
+  "rules": {
+    "no-console": "error",
+    "restrict-template-expressions": "off"
+  }
+}

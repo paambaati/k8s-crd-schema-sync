@@ -10,7 +10,7 @@
         "start": "bun src/index.ts",
         "sync": "bun src/index.ts --sync",
         "sync-pr": "bun src/index.ts --sync --create-pr",
-        "lint": "oxlint src/",
+        "lint": "oxlint src/ --type-aware --type-check",
         "format": "oxfmt --write src/",
         "format:check": "oxfmt --check src/"
     },
@@ -23,11 +23,12 @@
         "yaml": "2.8.2"
     },
     "devDependencies": {
-        "oxlint": "1.32.0",
-        "oxfmt": "0.17.0",
         "@types/bun": "latest",
         "@types/js-yaml": "4.0.9",
         "@types/node": "20.10.6",
+        "oxfmt": "0.17.0",
+        "oxlint": "1.32.0",
+        "oxlint-tsgolint": "0.8.4",
         "typescript": "5.9.3"
     },
     "engines": {

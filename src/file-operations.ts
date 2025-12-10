@@ -2,13 +2,14 @@
  * File operations for saving and detecting schema changes
  */
 
-import { readdirSync, statSync, mkdirSync, existsSync } from 'fs';
+import { readdirSync, statSync, mkdirSync } from 'fs';
 import { getLogger } from './logger';
 import type { ParsedCRD } from './types';
 import { convertOpenAPIv3ToJSONSchema, generateSchemaFilename } from './schema-converter';
 
 export async function ensureDirectoryExists(dir: string): Promise<void> {
-  if (!existsSync(dir)) {
+  const dirFile = Bun.file(dir);
+  if (!(await dirFile.exists())) {
     mkdirSync(dir, { recursive: true });
   }
 }
@@ -90,7 +91,8 @@ export async function detectChangedSchemas(
 export async function loadExistingSchemas(outputDir: string): Promise<Record<string, unknown>> {
   const schemas: Record<string, unknown> = {};
 
-  if (!existsSync(outputDir)) {
+  const dirFile = Bun.file(outputDir);
+  if (!(await dirFile.exists())) {
     return schemas;
   }
 
