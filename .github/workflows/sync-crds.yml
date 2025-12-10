@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       createPR:
-        description: "Create PR on datreeio/CRDs-catalog"
+        description: "Create PR on target repository"
         required: false
         default: false
         type: boolean
@@ -16,6 +16,11 @@ on:
         required: false
         default: false
         type: boolean
+      targetRepo:
+        description: "Target repository (owner/repo), defaults to paambaati/CRDs-catalog"
+        required: false
+        default: "paambaati/CRDs-catalog"
+        type: string
 
 jobs:
   sync-crds:
@@ -49,7 +54,7 @@ jobs:
         env:
           CRD_SYNC_OUTPUT_DIR: "./schemas"
           CRD_SYNC_CREATE_PR: "true"
-          CRD_SYNC_TARGET_REPO: "paambaati/CRDs-catalog"
+          CRD_SYNC_TARGET_REPO: "${{ inputs.targetRepo || 'paambaati/CRDs-catalog' }}"
           CRD_SYNC_DRY_RUN: ${{ inputs.dryRun }}
           CRD_SYNC_VERBOSE: "true"
           GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
