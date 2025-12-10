@@ -2,6 +2,22 @@
  * Configuration types for CRD schema sync
  */
 
+import type { V1JSONSchemaProps } from '@kubernetes/client-node';
+
+export interface GitHubConfig {
+  token: string;
+  owner: string;
+  repo: string;
+  baseBranch: string;
+}
+
+export interface CreateGitHubPROptions {
+  title: string;
+  body: string;
+  files: Record<string, string>;
+  branchName: string;
+}
+
 /** URL-based CRD source */
 export interface URLCRDSource {
   type: 'url';
@@ -74,7 +90,7 @@ export interface ParsedCRD {
   /** API version (e.g., "v1", "v1beta1") */
   version: string;
   /** OpenAPI v3 schema */
-  openAPIV3Schema: Record<string, unknown>;
+  openAPIV3Schema: V1JSONSchemaProps;
   /** Full CRD YAML for reference */
   rawYAML: string;
   /** Source this CRD came from */
@@ -91,7 +107,7 @@ export interface K8sCRDSpec {
   versions: Array<{
     name: string;
     schema?: {
-      openAPIV3Schema?: Record<string, unknown>;
+      openAPIV3Schema?: V1JSONSchemaProps;
     };
     served?: boolean;
     storage?: boolean;
@@ -172,7 +188,7 @@ export interface K8sCRDList {
       versions: Array<{
         name: string;
         schema?: {
-          openAPIV3Schema?: Record<string, unknown>;
+          openAPIV3Schema?: V1JSONSchemaProps;
         };
         served?: boolean;
         storage?: boolean;
@@ -181,14 +197,8 @@ export interface K8sCRDList {
   }>;
 }
 
-export interface JSONSchema {
-  /** Standard JSON schema properties */
-  description?: string;
-  type: string;
-  properties?: Record<string, unknown>;
-  required?: Array<string>;
-  [key: string]: unknown;
-}
+/** JSON Schema type - V1JSONSchemaProps from @kubernetes/client-node */
+export type JSONSchema = V1JSONSchemaProps;
 
 export interface SyncResult {
   success: boolean;

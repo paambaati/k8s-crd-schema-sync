@@ -15,9 +15,8 @@ export async function ensureDirectoryExists(dir: string): Promise<void> {
 }
 
 /**
- * Save schemas to filesystem
+ * Save schemas to filesystem.
  * Creates directory structure: {workDir}/{group}/{kind}_{version}.json
- * Uses Bun.write() for efficient file writes
  */
 export async function saveSchemas(
   crds: Array<ParsedCRD>,
@@ -45,9 +44,8 @@ export async function saveSchemas(
 }
 
 /**
- * Compare new schemas with existing ones
- * Returns schemas that have changed
- * Uses Bun.file().exists() for efficient existence checks
+ * Compare new schemas with existing ones.
+ * Returns schemas that have changed.
  */
 export async function detectChangedSchemas(
   newCRDs: Array<ParsedCRD>,
@@ -124,10 +122,10 @@ export async function loadExistingSchemas(workDir: string): Promise<Record<strin
 }
 
 /**
- * Get filepath for schema
+ * Generate filepath for schema file.
  * @example 'configuration.konghq.com/kongconsumer_v1.json'
  */
-export function getSchemaPath(group: string, kind: string, version: string): string {
+export function generateSchemaPath(group: string, kind: string, version: string): string {
   const filename = generateSchemaFilename(kind, version);
   return `${group}/${filename}`;
 }

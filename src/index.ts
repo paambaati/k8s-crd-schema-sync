@@ -6,7 +6,7 @@
 import type { ParsedCRD, SyncResult, SyncConfig, K8sClusterCRDSource } from './types';
 import { getDefaultConfig, loadConfigFromEnv, mergeConfigs, parseConfigFromCLI } from './config';
 import { fetchAndParseCRDs } from './crd-parser';
-import { saveSchemas, detectChangedSchemas, getSchemaPath } from './file-operations';
+import { saveSchemas, detectChangedSchemas, generateSchemaPath } from './file-operations';
 import { GitHubManager, parseGitHubRepo } from './github-manager';
 import { initializeLogger, getLogger } from './logger';
 import { getClusterInfo } from './k8s-client';
@@ -104,7 +104,7 @@ export async function runSync(providedConfig?: Partial<SyncConfig>): Promise<Syn
 
         const prFiles: Record<string, string> = {};
         for (const crd of changedCRDs) {
-          const schemaPath = getSchemaPath(crd.group, crd.kind, crd.version);
+          const schemaPath = generateSchemaPath(crd.group, crd.kind, crd.version);
           prFiles[schemaPath] = files[schemaPath] || '{}';
         }
 
@@ -382,7 +382,7 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
 
       const prFiles: Record<string, string> = {};
       for (const crd of changedCRDs) {
-        const schemaPath = getSchemaPath(crd.group, crd.kind, crd.version);
+        const schemaPath = generateSchemaPath(crd.group, crd.kind, crd.version);
         const fullPath = `${config.workDir}/${schemaPath}`;
         try {
           const content = await Bun.file(fullPath).text();
