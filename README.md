@@ -2,7 +2,7 @@
 
 Automated tool for generating and syncing Kubernetes Custom Resource Definition (CRD) JSON schemas to public CRD catalogs like [`datreeio/CRDs-catalog`](https://github.com/datreeio/CRDs-catalog).
 
-Supports both URL-based sources and direct Kubernetes cluster connectivity via kubectl config.
+Supports both URL-based sources and direct Kubernetes cluster connectivity via `kubectl` config.
 
 ## Quick Start
 
@@ -16,7 +16,7 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via k
 
 #### Sub-Commands
 
-The tool now supports three sub-commands for fine-grained control:
+The tool now supports three sub-commands for fine-grained control –
 
 ```bash
 # Dump CRDs directly from a Kubernetes cluster
@@ -80,15 +80,15 @@ bun src/index.ts publish -t owner/repo -b main
 #### GitHub Actions
 
 The included GitHub Actions workflow runs on –
-- **Schedule**: Weekly (Monday at 00:00 UTC).
-- **Manual**: Via `workflow_dispatch`.
+- **Schedule** – Weekly (Monday at 00:00 UTC).
+- **Manual** – Via `workflow_dispatch`.
 
 ## Configuration
 
-Configuration is loaded with the following precedence (lowest to highest):
-1. **Defaults** - Built-in defaults
-2. **Environment Variables** - `CRD_SYNC_*` variables
-3. **CLI Flags** - Command-line arguments override everything
+Configuration is loaded with the following precedence (lowest to highest) –
+1. **Defaults** - Built-in defaults.
+2. **Environment Variables** - `CRD_SYNC_*` variables.
+3. **CLI Flags** - Command-line arguments override everything.
 
 ### Environment Variables
 
@@ -104,7 +104,7 @@ Configuration is loaded with the following precedence (lowest to highest):
 
 ### Adding CRD Download Sources
 
-Edit `src/config.ts` to add new URL-based sources:
+Edit `src/config.ts` to add new URL-based sources –
 
 ```typescript
 const DEFAULT_SOURCES: Array<URLCRDSource> = [
