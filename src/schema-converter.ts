@@ -10,16 +10,15 @@ import type { JSONSchema } from './types';
  * Handles Kubernetes-specific OpenAPI extensions and schema properties
  */
 export function convertOpenAPIv3ToJSONSchema(openAPIv3: Record<string, unknown>): JSONSchema {
-  const converted = convertSchema(openAPIv3);
+  const converted = convertSchema(openAPIv3, true);
 
   return {
-    $schema: 'http://json-schema.org/draft-07/schema#',
     ...converted,
     type: converted.type as string,
   };
 }
 
-function convertSchema(schema: unknown): Partial<JSONSchema> {
+function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
   if (typeof schema !== 'object' || schema === null) {
     return { type: 'unknown' };
   }
@@ -79,7 +78,7 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
 
   // Handle array properties
   if (obj.items) {
-    result.items = convertSchema(obj.items);
+    result.items = convertSchema(obj.items, false);
   }
   if (typeof obj.minItems === 'number') {
     result.minItems = obj.minItems;
@@ -92,18 +91,19 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
   if (obj.properties && typeof obj.properties === 'object') {
     result.properties = {};
     for (const [key, value] of Object.entries(obj.properties)) {
-      (result.properties as Record<string, unknown>)[key] = convertSchema(value);
+      (result.properties as Record<string, unknown>)[key] = convertSchema(value, false);
     }
     // Set additionalProperties to false for objects with properties (strict validation)
-    // This matches the behavior of openapi2jsonschema.py (https://github.com/yannh/kubeconform/blob/master/scripts/openapi2jsonschema.py)
-    if (result.additionalProperties === undefined) {
+    // but only if not at root level. This matches the behavior of openapi2jsonschema.py
+    // (https://github.com/yannh/kubeconform/blob/master/scripts/openapi2jsonschema.py)
+    if (!isRoot && result.additionalProperties === undefined) {
       result.additionalProperties = false;
     }
   }
 
   if (obj.additionalProperties !== undefined) {
     if (typeof obj.additionalProperties === 'object') {
-      result.additionalProperties = convertSchema(obj.additionalProperties);
+      result.additionalProperties = convertSchema(obj.additionalProperties, false);
     } else {
       result.additionalProperties = obj.additionalProperties;
     }
@@ -116,18 +116,18 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
 
   // Handle allOf, anyOf, oneOf
   if (Array.isArray(obj.allOf)) {
-    result.allOf = obj.allOf.map(convertSchema);
+    result.allOf = obj.allOf.map((s) => convertSchema(s, false));
   }
   if (Array.isArray(obj.anyOf)) {
-    result.anyOf = obj.anyOf.map(convertSchema);
+    result.anyOf = obj.anyOf.map((s) => convertSchema(s, false));
   }
   if (Array.isArray(obj.oneOf)) {
-    result.oneOf = obj.oneOf.map(convertSchema);
+    result.oneOf = obj.oneOf.map((s) => convertSchema(s, false));
   }
 
   // Handle not
   if (obj.not) {
-    result.not = convertSchema(obj.not);
+    result.not = convertSchema(obj.not, false);
   }
 
   // Handle ref (JSON Pointer)
@@ -135,15 +135,36 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
     result.$ref = obj.$ref;
   }
 
-  // Handle Kubernetes-specific validations
+  // Handle Kubernetes-specific extensions
+  // Validations
   if (obj['x-kubernetes-validations']) {
-    // Keep K8s validations as comments would, but for JSON schema we can skip
-    // since JSON schema doesn't support these
+    result['x-kubernetes-validations'] = obj['x-kubernetes-validations'];
   }
 
-  // Preserve unknown fields flag
+  // Field preservation and pruning
   if (obj['x-kubernetes-preserve-unknown-fields']) {
     result['x-kubernetes-preserve-unknown-fields'] = obj['x-kubernetes-preserve-unknown-fields'];
+  }
+  if (obj['x-kubernetes-pruning']) {
+    result['x-kubernetes-pruning'] = obj['x-kubernetes-pruning'];
+  }
+
+  // List metadata
+  if (obj['x-kubernetes-list-type']) {
+    result['x-kubernetes-list-type'] = obj['x-kubernetes-list-type'];
+  }
+  if (obj['x-kubernetes-list-map-keys']) {
+    result['x-kubernetes-list-map-keys'] = obj['x-kubernetes-list-map-keys'];
+  }
+
+  // Format variants
+  if (obj['x-kubernetes-int-or-string']) {
+    result['x-kubernetes-int-or-string'] = obj['x-kubernetes-int-or-string'];
+  }
+
+  // Resource embedding
+  if (obj['x-kubernetes-embedded-resource']) {
+    result['x-kubernetes-embedded-resource'] = obj['x-kubernetes-embedded-resource'];
   }
 
   // Keep examples if present

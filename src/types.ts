@@ -59,7 +59,6 @@ export interface ParsedCRD {
 
 export interface JSONSchema {
   /** Standard JSON schema properties */
-  $schema: string;
   description?: string;
   type: string;
   properties?: Record<string, unknown>;
