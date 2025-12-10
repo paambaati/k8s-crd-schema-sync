@@ -1,41 +1,24 @@
 /**
- * Fetch and parse Kubernetes CRDs from remote sources
- * Uses Bun.fetch() for efficient HTTP requests
+ * Fetch and parse Kubernetes CRDs from remote sources or clusters.
+ * Uses direct HTTP requests to the K8s API for clusters.
  */
 
 import YAML from 'yaml';
 import { getLogger } from './logger';
-import type { CRDSource, ParsedCRD } from './types';
-
-interface K8sCRDSpec {
-  group: string;
-  names: {
-    kind: string;
-    singular?: string;
-    plural?: string;
-  };
-  versions: Array<{
-    name: string;
-    schema?: {
-      openAPIV3Schema?: Record<string, unknown>;
-    };
-    served?: boolean;
-    storage?: boolean;
-  }>;
-}
-
-interface K8sCRD {
-  apiVersion: string;
-  kind: string;
-  metadata: {
-    name: string;
-    annotations?: Record<string, string>;
-    labels?: Record<string, string>;
-  };
-  spec: K8sCRDSpec;
-}
+import type { CRDSource, URLCRDSource, K8sClusterCRDSource, ParsedCRD, K8sCRD } from './types';
+import { fetchCRDsFromCluster } from './k8s-client';
 
 export async function fetchCRDs(source: CRDSource): Promise<Array<K8sCRD>> {
+  if (source.type === 'url') {
+    return fetchCRDsFromURL(source);
+  } else if (source.type === 'k8s-cluster') {
+    return fetchCRDsFromK8sCluster(source);
+  }
+
+  throw new Error(`Unknown source type: ${source as never}`);
+}
+
+async function fetchCRDsFromURL(source: URLCRDSource): Promise<Array<K8sCRD>> {
   try {
     const response = await Bun.fetch(source.url);
 
@@ -67,6 +50,20 @@ export async function fetchCRDs(source: CRDSource): Promise<Array<K8sCRD>> {
   }
 }
 
+async function fetchCRDsFromK8sCluster(source: K8sClusterCRDSource): Promise<Array<K8sCRD>> {
+  try {
+    const crds = await fetchCRDsFromCluster(
+      source.context,
+      source.namespace,
+      source.apiServerUrl,
+      source.caPath
+    );
+    return crds as Array<K8sCRD>;
+  } catch (error) {
+    throw new Error(`Failed to fetch CRDs from cluster ${source.name}: ${error}`);
+  }
+}
+
 export function parseCRDs(crds: Array<K8sCRD>, source: CRDSource): Array<ParsedCRD> {
   const parsed: Array<ParsedCRD> = [];
 
@@ -74,8 +71,12 @@ export function parseCRDs(crds: Array<K8sCRD>, source: CRDSource): Array<ParsedC
     const group = crd.spec.group;
     const kind = crd.spec.names.kind;
 
-    // Skip if CRD doesn't belong to the specified group.
-    if (group !== source.group) {
+    // For k8s clusters, accept all groups. For URLs, filter by group if specified.
+    if (
+      source.type === 'url' &&
+      (source as URLCRDSource).group &&
+      group !== (source as URLCRDSource).group
+    ) {
       continue;
     }
 

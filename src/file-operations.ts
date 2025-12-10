@@ -2,34 +2,34 @@
  * File operations for saving and detecting schema changes
  */
 
-import { readdirSync, statSync, mkdirSync, existsSync } from 'fs';
+import { readdirSync, statSync, mkdirSync } from 'fs';
 import { getLogger } from './logger';
 import type { ParsedCRD } from './types';
 import { convertOpenAPIv3ToJSONSchema, generateSchemaFilename } from './schema-converter';
 
 export async function ensureDirectoryExists(dir: string): Promise<void> {
-  if (!existsSync(dir)) {
+  const dirFile = Bun.file(dir);
+  if (!(await dirFile.exists())) {
     mkdirSync(dir, { recursive: true });
   }
 }
 
 /**
- * Save schemas to filesystem
- * Creates directory structure: {outputDir}/{group}/{kind}_{version}.json
- * Uses Bun.write() for efficient file writes
+ * Save schemas to filesystem.
+ * Creates directory structure: {workDir}/{group}/{kind}_{version}.json
  */
 export async function saveSchemas(
   crds: Array<ParsedCRD>,
-  outputDir: string
+  workDir: string
 ): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
 
-  await ensureDirectoryExists(outputDir);
+  await ensureDirectoryExists(workDir);
 
   for (const crd of crds) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const dirPath = `${outputDir}/${crd.group}`;
+    const dirPath = `${workDir}/${crd.group}`;
     const fullPath = `${dirPath}/${filename}`;
 
     await ensureDirectoryExists(dirPath);
@@ -44,20 +44,19 @@ export async function saveSchemas(
 }
 
 /**
- * Compare new schemas with existing ones
- * Returns schemas that have changed
- * Uses Bun.file().exists() for efficient existence checks
+ * Compare new schemas with existing ones.
+ * Returns schemas that have changed.
  */
 export async function detectChangedSchemas(
   newCRDs: Array<ParsedCRD>,
-  outputDir: string
+  workDir: string
 ): Promise<Array<ParsedCRD>> {
   const changed: Array<ParsedCRD> = [];
 
   for (const crd of newCRDs) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const filePath = `${outputDir}/${crd.group}/${filename}`;
+    const filePath = `${workDir}/${crd.group}/${filename}`;
 
     const f = Bun.file(filePath);
     if (!(await f.exists())) {
@@ -84,13 +83,13 @@ export async function detectChangedSchemas(
 }
 
 /**
- * Load existing schemas from filesystem
- * Uses Bun.file().text() for reading schema files
+ * Load existing schemas from filesystem.
  */
-export async function loadExistingSchemas(outputDir: string): Promise<Record<string, unknown>> {
+export async function loadExistingSchemas(workDir: string): Promise<Record<string, unknown>> {
   const schemas: Record<string, unknown> = {};
 
-  if (!existsSync(outputDir)) {
+  const dirFile = Bun.file(workDir);
+  if (!(await dirFile.exists())) {
     return schemas;
   }
 
@@ -118,15 +117,15 @@ export async function loadExistingSchemas(outputDir: string): Promise<Record<str
     }
   }
 
-  await walkDir(outputDir);
+  await walkDir(workDir);
   return schemas;
 }
 
 /**
- * Get filepath for schema
+ * Generate filepath for schema file.
  * @example 'configuration.konghq.com/kongconsumer_v1.json'
  */
-export function getSchemaPath(group: string, kind: string, version: string): string {
+export function generateSchemaPath(group: string, kind: string, version: string): string {
   const filename = generateSchemaFilename(kind, version);
   return `${group}/${filename}`;
 }

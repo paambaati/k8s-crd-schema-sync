@@ -3,20 +3,7 @@
  */
 
 import { Octokit } from '@octokit/rest';
-
-interface GitHubConfig {
-  token: string;
-  owner: string;
-  repo: string;
-  baseBranch: string;
-}
-
-interface CreatePROptions {
-  title: string;
-  body: string;
-  files: Record<string, string>;
-  branchName: string;
-}
+import { CreateGitHubPROptions, GitHubConfig } from './types';
 
 export class GitHubManager {
   private octokit: Octokit;
@@ -28,7 +15,7 @@ export class GitHubManager {
   }
 
   /**
-   * Check if a branch exists
+   * Check if a branch exists.
    */
   async branchExists(branchName: string): Promise<boolean> {
     try {
@@ -44,7 +31,7 @@ export class GitHubManager {
   }
 
   /**
-   * Get the SHA of the base branch tip
+   * Get the SHA of the base branch tip.
    */
   async getBaseCommitSHA(): Promise<string> {
     const ref = await this.octokit.git.getRef({
@@ -57,7 +44,7 @@ export class GitHubManager {
   }
 
   /**
-   * Create a new branch
+   * Create a new branch.
    */
   async createBranch(branchName: string, sha: string): Promise<void> {
     await this.octokit.git.createRef({
@@ -69,7 +56,7 @@ export class GitHubManager {
   }
 
   /**
-   * Delete a branch
+   * Delete a branch.
    */
   async deleteBranch(branchName: string): Promise<void> {
     await this.octokit.git.deleteRef({
@@ -80,7 +67,7 @@ export class GitHubManager {
   }
 
   /**
-   * Get file content from repository
+   * Get file content from repository.
    */
   async getFileContent(
     path: string,
@@ -109,7 +96,7 @@ export class GitHubManager {
   }
 
   /**
-   * Create or update a file in the repository
+   * Create or update a file in the repository.
    */
   async createOrUpdateFile(
     path: string,
@@ -118,19 +105,16 @@ export class GitHubManager {
     message: string
   ): Promise<string> {
     let sha: string | undefined;
-    try {
-      const existing = await this.octokit.repos.getContent({
-        owner: this.config.owner,
-        repo: this.config.repo,
-        path,
-        ref: branch,
-      });
 
-      if (!Array.isArray(existing.data) && 'sha' in existing.data) {
-        sha = existing.data.sha;
-      }
-    } catch {
-      // File doesn't exist yet
+    const existing = await this.octokit.repos.getContent({
+      owner: this.config.owner,
+      repo: this.config.repo,
+      path,
+      ref: branch,
+    });
+
+    if (!Array.isArray(existing.data) && 'sha' in existing.data) {
+      sha = existing.data.sha;
     }
 
     const response = await this.octokit.repos.createOrUpdateFileContents({
@@ -147,7 +131,7 @@ export class GitHubManager {
   }
 
   /**
-   * Create a pull request
+   * Create a pull request.
    */
   async createPullRequest(title: string, body: string, headBranch: string): Promise<string> {
     const response = await this.octokit.pulls.create({
@@ -163,9 +147,9 @@ export class GitHubManager {
   }
 
   /**
-   * Create PR with multiple files
+   * Create PR with multiple files.
    */
-  async createPRWithFiles(options: CreatePROptions): Promise<string> {
+  async createPRWithFiles(options: CreateGitHubPROptions): Promise<string> {
     const exists = await this.branchExists(options.branchName);
     if (exists) {
       await this.deleteBranch(options.branchName);

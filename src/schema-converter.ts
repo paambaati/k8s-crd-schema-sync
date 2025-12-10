@@ -4,12 +4,15 @@
  */
 
 import type { JSONSchema } from './types';
+import type { V1JSONSchemaProps } from '@kubernetes/client-node';
 
 /**
- * Convert OpenAPI v3 schema to JSON Schema
- * Handles Kubernetes-specific OpenAPI extensions and schema properties
+ * Convert OpenAPI v3 schema to JSON Schema.
+ * Handles Kubernetes-specific OpenAPI extensions and schema properties.
  */
-export function convertOpenAPIv3ToJSONSchema(openAPIv3: Record<string, unknown>): JSONSchema {
+export function convertOpenAPIv3ToJSONSchema(
+  openAPIv3: V1JSONSchemaProps | Record<string, unknown>
+): JSONSchema {
   const converted = convertSchema(openAPIv3, true);
 
   return {
@@ -26,32 +29,32 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
   const obj = schema as Record<string, unknown>;
   const result: Record<string, unknown> = {};
 
-  // Handle type
+  // Handle type.
   if (obj.type) {
     result.type = obj.type;
   }
 
-  // Handle description
+  // Handle description.
   if (obj.description) {
     result.description = obj.description;
   }
 
-  // Handle enum
+  // Handle enum.
   if (obj.enum) {
     result.enum = obj.enum;
   }
 
-  // Handle default
+  // Handle default.
   if (obj.default !== undefined) {
     result.default = obj.default;
   }
 
-  // Handle format
+  // Handle format.
   if (obj.format && typeof obj.format === 'string') {
     result.format = obj.format;
   }
 
-  // Handle numeric constraints
+  // Handle numeric constraints.
   if (typeof obj.minimum === 'number') {
     result.minimum = obj.minimum;
   }
@@ -65,7 +68,7 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result.exclusiveMaximum = obj.exclusiveMaximum;
   }
 
-  // Handle string constraints
+  // Handle string constraints.
   if (typeof obj.minLength === 'number') {
     result.minLength = obj.minLength;
   }
@@ -76,7 +79,7 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result.pattern = obj.pattern;
   }
 
-  // Handle array properties
+  // Handle array properties.
   if (obj.items) {
     result.items = convertSchema(obj.items, false);
   }
@@ -87,7 +90,7 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result.maxItems = obj.maxItems;
   }
 
-  // Handle object properties
+  // Handle object properties.
   if (obj.properties && typeof obj.properties === 'object') {
     result.properties = {};
     for (const [key, value] of Object.entries(obj.properties)) {
@@ -109,12 +112,12 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     }
   }
 
-  // Handle required fields
+  // Handle required fields.
   if (Array.isArray(obj.required)) {
     result.required = obj.required.filter((r) => typeof r === 'string');
   }
 
-  // Handle allOf, anyOf, oneOf
+  // Handle allOf, anyOf, oneOf.
   if (Array.isArray(obj.allOf)) {
     result.allOf = obj.allOf.map((s) => convertSchema(s, false));
   }
@@ -125,23 +128,21 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result.oneOf = obj.oneOf.map((s) => convertSchema(s, false));
   }
 
-  // Handle not
+  // Handle not.
   if (obj.not) {
     result.not = convertSchema(obj.not, false);
   }
 
-  // Handle ref (JSON Pointer)
+  // Handle ref (JSON Pointer).
   if (obj.$ref) {
     result.$ref = obj.$ref;
   }
 
-  // Handle Kubernetes-specific extensions
-  // Validations
+  // Handle Kubernetes-specific extensions.
   if (obj['x-kubernetes-validations']) {
     result['x-kubernetes-validations'] = obj['x-kubernetes-validations'];
   }
 
-  // Field preservation and pruning
   if (obj['x-kubernetes-preserve-unknown-fields']) {
     result['x-kubernetes-preserve-unknown-fields'] = obj['x-kubernetes-preserve-unknown-fields'];
   }
@@ -149,7 +150,6 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result['x-kubernetes-pruning'] = obj['x-kubernetes-pruning'];
   }
 
-  // List metadata
   if (obj['x-kubernetes-list-type']) {
     result['x-kubernetes-list-type'] = obj['x-kubernetes-list-type'];
   }
@@ -157,17 +157,15 @@ function convertSchema(schema: unknown, isRoot = false): Partial<JSONSchema> {
     result['x-kubernetes-list-map-keys'] = obj['x-kubernetes-list-map-keys'];
   }
 
-  // Format variants
   if (obj['x-kubernetes-int-or-string']) {
     result['x-kubernetes-int-or-string'] = obj['x-kubernetes-int-or-string'];
   }
 
-  // Resource embedding
   if (obj['x-kubernetes-embedded-resource']) {
     result['x-kubernetes-embedded-resource'] = obj['x-kubernetes-embedded-resource'];
   }
 
-  // Keep examples if present
+  // Keep examples if present.
   if (obj.example) {
     result.example = obj.example;
   }
