@@ -72,7 +72,7 @@ export async function runSync(providedConfig?: Partial<SyncConfig>): Promise<Syn
 
     logger.debug(`Saved ${Object.keys(files).length} file(s)`);
 
-    if (config.createPR && changedCRDs.length > 0) {
+    if (!config.dryRun && changedCRDs.length > 0) {
       if (!config.githubToken) {
         throw new Error('GITHUB_TOKEN environment variable is required to create PRs');
       }

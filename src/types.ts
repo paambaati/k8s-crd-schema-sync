@@ -64,8 +64,6 @@ export interface SyncConfig {
   targetBranch: string;
   /** GitHub personal access token (from env: GITHUB_TOKEN) */
   githubToken?: string;
-  /** Whether to create PRs automatically */
-  createPR: boolean;
   /** PR title template */
   prTitleTemplate: string;
   /** PR body template */

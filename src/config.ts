@@ -21,7 +21,6 @@ const DEFAULT_CONFIG: SyncConfig = {
   sources: DEFAULT_SOURCES,
   targetRepo: 'datreeio/CRDs-catalog',
   targetBranch: 'main',
-  createPR: false,
   prTitleTemplate: 'chore: sync {source} CRD schemas',
   prBodyTemplate: `## Automated CRD Schema Sync
 
@@ -55,7 +54,6 @@ export function getDefaultConfig(): SyncConfig {
 
 export function loadConfigFromEnv(): Partial<SyncConfig> {
   return {
-    createPR: process.env.CRD_SYNC_CREATE_PR === 'true',
     dryRun: process.env.CRD_SYNC_DRY_RUN === 'true',
     verbose: process.env.CRD_SYNC_VERBOSE === 'true',
     githubToken: process.env.GITHUB_TOKEN,

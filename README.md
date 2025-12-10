@@ -10,7 +10,7 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via k
 
 - Bun >= 1.0.0
 - GitHub personal access token (optional, for PR creation)
-- kubectl configured and authenticated (optional, for cluster dump)
+- `kubectl` configured and authenticated (optional, for cluster dump)
 
 ### Usage
 
@@ -26,10 +26,7 @@ bun src/index.ts dump [context]
 bun src/index.ts download
 
 # Publish schemas to a GitHub repository via PR
-bun src/index.ts publish --create-pr
-
-# Legacy default: download from sources and optionally publish
-bun src/index.ts --create-pr
+bun src/index.ts publish
 ```
 
 #### Dump from Kubernetes Cluster
