@@ -32,7 +32,7 @@ export async function runSync(providedConfig?: Partial<SyncConfig>): Promise<Syn
     logger.info('Starting CRD schema sync...');
     logger.debug({
       targetRepo: config.targetRepo,
-      outputDir: config.outputDir,
+      workDir: config.workDir,
       sources: config.sources.map((s) => s.name),
     });
 
@@ -61,14 +61,14 @@ export async function runSync(providedConfig?: Partial<SyncConfig>): Promise<Syn
 
     logger.info('Detecting changes...');
 
-    const changedCRDs = await detectChangedSchemas(allCRDs, config.outputDir);
+    const changedCRDs = await detectChangedSchemas(allCRDs, config.workDir);
     result.changedSchemas = changedCRDs;
 
     logger.debug(`${changedCRDs.length} schema(s) changed or new`);
 
     logger.info('Saving schemas to disk...');
 
-    const files = await saveSchemas(allCRDs, config.outputDir);
+    const files = await saveSchemas(allCRDs, config.workDir);
 
     logger.debug(`Saved ${Object.keys(files).length} file(s)`);
 
@@ -145,7 +145,7 @@ export async function runSync(providedConfig?: Partial<SyncConfig>): Promise<Syn
  */
 export async function dumpCRDsFromCluster(
   contextName?: string,
-  outputDir: string = './schemas'
+  workDir: string = './schemas'
 ): Promise<SyncResult> {
   initializeLogger(false);
   const logger = getLogger();
@@ -181,11 +181,11 @@ export async function dumpCRDsFromCluster(
     logger.info(`Fetched ${crds.length} CRDs`);
 
     logger.info('Saving schemas to disk...');
-    const files = await saveSchemas(crds, outputDir);
+    const files = await saveSchemas(crds, workDir);
 
     logger.debug(`Saved ${Object.keys(files).length} file(s)`);
 
-    result.message = `Successfully dumped ${crds.length} CRDs to ${outputDir}`;
+    result.message = `Successfully dumped ${crds.length} CRDs to ${workDir}`;
     result.success = true;
 
     logger.info('Dump completed successfully!');
@@ -225,7 +225,7 @@ export async function downloadCRDsFromSources(
   try {
     logger.info('Downloading CRDs from configured sources...');
     logger.debug({
-      outputDir: config.outputDir,
+      workDir: config.workDir,
       sources: config.sources.map((s) => s.name),
     });
 
@@ -253,11 +253,11 @@ export async function downloadCRDsFromSources(
     result.generatedSchemas = allCRDs;
 
     logger.info('Saving schemas to disk...');
-    const files = await saveSchemas(allCRDs, config.outputDir);
+    const files = await saveSchemas(allCRDs, config.workDir);
 
     logger.debug(`Saved ${Object.keys(files).length} file(s)`);
 
-    result.message = `Successfully downloaded ${allCRDs.length} CRDs to ${config.outputDir}`;
+    result.message = `Successfully downloaded ${allCRDs.length} CRDs to ${config.workDir}`;
     result.success = true;
 
     logger.info('Download completed successfully!');
@@ -296,25 +296,25 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
     logger.info('Publishing schemas via PR...');
     logger.debug({
       targetRepo: config.targetRepo,
-      outputDir: config.outputDir,
+      workDir: config.workDir,
     });
 
     // Read existing schemas from disk
     const { readdirSync, statSync } = await import('fs');
     const allCRDs: Array<ParsedCRD> = [];
 
-    const groupDirs = readdirSync(config.outputDir).filter((f) => {
-      const path = `${config.outputDir}/${f}`;
+    const groupDirs = readdirSync(config.workDir).filter((f) => {
+      const path = `${config.workDir}/${f}`;
       return statSync(path).isDirectory();
     });
 
     for (const groupDir of groupDirs) {
-      const schemaFiles = readdirSync(`${config.outputDir}/${groupDir}`).filter((f) =>
+      const schemaFiles = readdirSync(`${config.workDir}/${groupDir}`).filter((f) =>
         f.endsWith('.json')
       );
 
       for (const schemaFile of schemaFiles) {
-        const content = await Bun.file(`${config.outputDir}/${groupDir}/${schemaFile}`).text();
+        const content = await Bun.file(`${config.workDir}/${groupDir}/${schemaFile}`).text();
         try {
           const schema = JSON.parse(content);
           // Note: We reconstruct basic info from filenames and schema
@@ -383,7 +383,7 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
       const prFiles: Record<string, string> = {};
       for (const crd of changedCRDs) {
         const schemaPath = getSchemaPath(crd.group, crd.kind, crd.version);
-        const fullPath = `${config.outputDir}/${schemaPath}`;
+        const fullPath = `${config.workDir}/${schemaPath}`;
         try {
           const content = await Bun.file(fullPath).text();
           prFiles[schemaPath] = content;
@@ -449,7 +449,7 @@ if (import.meta.main) {
   let inputCommand: Promise<SyncResult>;
 
   if (command === 'dump') {
-    inputCommand = dumpCRDsFromCluster(context, cliConfig.outputDir);
+    inputCommand = dumpCRDsFromCluster(context, cliConfig.workDir);
   } else if (command === 'download') {
     inputCommand = downloadCRDsFromSources(cliConfig);
   } else if (command === 'publish') {
@@ -460,26 +460,30 @@ if (import.meta.main) {
   }
 
   /* oxlint-disable no-console */
-  inputCommand.then(async (result) => {
-    console.log('\n📋 Sync Summary:');
-    console.log(`   CRDs fetched: ${result.generatedSchemas.length}`);
-    console.log(`   Changed schemas: ${result.changedSchemas.length}`);
-    console.log(`   Status: ${result.message}`);
+  inputCommand
+    .then(async (result) => {
+      console.log('\n📋 Sync Summary:');
+      console.log(`   CRDs fetched: ${result.generatedSchemas.length}`);
+      console.log(`   Changed schemas: ${result.changedSchemas.length}`);
+      console.log(`   Status: ${result.message}`);
 
-    if (result.prUrl) {
-      console.log(`   PR: ${result.prUrl}`);
-      // Output PR URL for GitHub Actions
-      if (process.env.GITHUB_OUTPUT) {
-        const outputFile = Bun.file(process.env.GITHUB_OUTPUT);
-        const existing = await outputFile.text().catch(() => '');
-        await Bun.write(outputFile, existing + `pr-url=${result.prUrl}\n`);
+      if (result.prUrl) {
+        console.log(`   PR: ${result.prUrl}`);
+        // Output PR URL for GitHub Actions
+        if (process.env.GITHUB_OUTPUT) {
+          const outputFile = Bun.file(process.env.GITHUB_OUTPUT);
+          const existing = await outputFile.text().catch(() => '');
+          await Bun.write(outputFile, existing + `pr-url=${result.prUrl}\n`);
+        }
       }
-    }
-    if (result.errors.length > 0) {
-      console.log(`   Errors: ${result.errors.length}`);
-      result.errors.forEach((err) => console.log(`     - ${err}`));
-    }
-    process.exit(result.success ? 0 : 1);
-  }).catch(error => { throw error });
+      if (result.errors.length > 0) {
+        console.log(`   Errors: ${result.errors.length}`);
+        result.errors.forEach((err) => console.log(`     - ${err}`));
+      }
+      process.exit(result.success ? 0 : 1);
+    })
+    .catch((error) => {
+      throw error;
+    });
   /* oxlint-enable no-console */
 }

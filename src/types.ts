@@ -56,8 +56,8 @@ export interface SyncConfig {
   prBodyTemplate: string;
   /** Dry run mode (don't actually create PRs) */
   dryRun: boolean;
-  /** Output directory for generated schemas */
-  outputDir: string;
+  /** Directory where schemas are saved */
+  workDir: string;
   /** Verbose logging */
   verbose: boolean;
 }

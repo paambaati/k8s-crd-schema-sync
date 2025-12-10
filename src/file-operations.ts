@@ -16,21 +16,21 @@ export async function ensureDirectoryExists(dir: string): Promise<void> {
 
 /**
  * Save schemas to filesystem
- * Creates directory structure: {outputDir}/{group}/{kind}_{version}.json
+ * Creates directory structure: {workDir}/{group}/{kind}_{version}.json
  * Uses Bun.write() for efficient file writes
  */
 export async function saveSchemas(
   crds: Array<ParsedCRD>,
-  outputDir: string
+  workDir: string
 ): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
 
-  await ensureDirectoryExists(outputDir);
+  await ensureDirectoryExists(workDir);
 
   for (const crd of crds) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const dirPath = `${outputDir}/${crd.group}`;
+    const dirPath = `${workDir}/${crd.group}`;
     const fullPath = `${dirPath}/${filename}`;
 
     await ensureDirectoryExists(dirPath);
@@ -51,14 +51,14 @@ export async function saveSchemas(
  */
 export async function detectChangedSchemas(
   newCRDs: Array<ParsedCRD>,
-  outputDir: string
+  workDir: string
 ): Promise<Array<ParsedCRD>> {
   const changed: Array<ParsedCRD> = [];
 
   for (const crd of newCRDs) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const filePath = `${outputDir}/${crd.group}/${filename}`;
+    const filePath = `${workDir}/${crd.group}/${filename}`;
 
     const f = Bun.file(filePath);
     if (!(await f.exists())) {
@@ -85,13 +85,12 @@ export async function detectChangedSchemas(
 }
 
 /**
- * Load existing schemas from filesystem
- * Uses Bun.file().text() for reading schema files
+ * Load existing schemas from filesystem.
  */
-export async function loadExistingSchemas(outputDir: string): Promise<Record<string, unknown>> {
+export async function loadExistingSchemas(workDir: string): Promise<Record<string, unknown>> {
   const schemas: Record<string, unknown> = {};
 
-  const dirFile = Bun.file(outputDir);
+  const dirFile = Bun.file(workDir);
   if (!(await dirFile.exists())) {
     return schemas;
   }
@@ -120,7 +119,7 @@ export async function loadExistingSchemas(outputDir: string): Promise<Record<str
     }
   }
 
-  await walkDir(outputDir);
+  await walkDir(workDir);
   return schemas;
 }
 
