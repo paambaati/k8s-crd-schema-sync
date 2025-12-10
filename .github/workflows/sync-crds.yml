@@ -6,11 +6,6 @@ on:
     - cron: "0 0 * * 1"
   workflow_dispatch:
     inputs:
-      createPR:
-        description: "Create PR on target repository"
-        required: false
-        default: false
-        type: boolean
       dryRun:
         description: "Dry run (don't actually create PR)"
         required: false
@@ -42,18 +37,18 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Download CRDs
-        if: github.event_name == 'schedule' || !inputs.createPR
+        if: github.event_name == 'schedule' || inputs.dryRun
         run: bun src/index.ts download --verbose --work-dir "./schemas"
 
       - name: Publish CRD schemas via PR
-        if: github.event_name == 'workflow_dispatch' && inputs.createPR
+        if: github.event_name == 'workflow_dispatch' && !inputs.dryRun
         id: sync
         run: bun src/index.ts publish --verbose --work-dir "./schemas" --targetrepo "${{ inputs.targetRepo || 'paambaati/CRDs-catalog' }}" --dry-run ${{ inputs.dryRun }}
         env:
           GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
 
       - name: Add PR link to summary
-        if: github.event_name == 'workflow_dispatch' && inputs.createPR && steps.sync.outputs.pr-url
+        if: github.event_name == 'workflow_dispatch' && !inputs.dryRun && steps.sync.outputs.pr-url
         run: |
           echo "## CRD Schema Sync Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
