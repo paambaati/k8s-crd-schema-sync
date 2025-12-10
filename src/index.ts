@@ -273,7 +273,7 @@ export async function downloadCRDsFromSources(
 }
 
 /**
- * Publish schemas via PR
+ * Publish schemas via PR.
  */
 export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Promise<SyncResult> {
   const baseConfig = getDefaultConfig();
@@ -299,7 +299,7 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
       workDir: config.workDir,
     });
 
-    // Read existing schemas from disk
+    // Read existing schemas from disk.
     const { readdirSync, statSync } = await import('fs');
     const allCRDs: Array<ParsedCRD> = [];
 
@@ -317,7 +317,6 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
         const content = await Bun.file(`${config.workDir}/${groupDir}/${schemaFile}`).text();
         try {
           const schema = JSON.parse(content);
-          // Note: We reconstruct basic info from filenames and schema
           const [kind, version] = schemaFile.replace('.json', '').split('_');
           allCRDs.push({
             name: `${kind.toLowerCase()}.${groupDir}`,
@@ -343,8 +342,8 @@ export async function publishSchemas(providedConfig?: Partial<SyncConfig>): Prom
 
     result.generatedSchemas = allCRDs;
 
-    if (!config.createPR) {
-      result.message = 'Publish command requires --create-pr flag to be set';
+    if (config.dryRun) {
+      result.message = 'Dry run completed. Run publish command without the --dry-run flag to publish';
       result.success = true;
       logger.info(result.message);
       return result;
@@ -440,7 +439,6 @@ if (import.meta.main) {
     process.exit(0);
   }
 
-  // If no command specified, show help
   if (!command) {
     cli.outputHelp();
     process.exit(0);
@@ -455,7 +453,6 @@ if (import.meta.main) {
   } else if (command === 'publish') {
     inputCommand = publishSchemas(cliConfig);
   } else {
-    // Should not reach here given the check above
     inputCommand = runSync(cliConfig);
   }
 
