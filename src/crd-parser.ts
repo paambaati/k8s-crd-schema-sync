@@ -79,6 +79,9 @@ export function parseCRDs(crds: Array<K8sCRD>, source: CRDSource): Array<ParsedC
       continue;
     }
 
+    // Extract plural name from metadata.name (e.g., "kongconsumers" from "kongconsumers.configuration.konghq.com")
+    const pluralName = crd.metadata.name.split('.')[0];
+
     for (const versionSpec of crd.spec.versions) {
       const schema = versionSpec.schema?.openAPIV3Schema;
 
@@ -89,6 +92,7 @@ export function parseCRDs(crds: Array<K8sCRD>, source: CRDSource): Array<ParsedC
 
       parsed.push({
         name: crd.metadata.name,
+        pluralName,
         group,
         kind,
         version: versionSpec.name,

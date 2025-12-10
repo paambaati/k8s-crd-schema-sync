@@ -154,8 +154,8 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
 
 /**
  * Generate filename for schema based on Kind and version
- * Format: {kind}_{version}.json
- * Example: kongplugin_v1.json
+ * Format: {kind}_{version}.json (lowercase)
+ * Example: kongconsumer_v1.json
  */
 export function generateSchemaFilename(kind: string, version: string): string {
   const normalizedKind = kind.toLowerCase();

@@ -41,6 +41,8 @@ export interface SyncConfig {
 export interface ParsedCRD {
   /** CRD name (metadata.name) */
   name: string;
+  /** Plural resource name extracted from metadata.name (e.g., "kongconsumers" from "kongconsumers.configuration.konghq.com") */
+  pluralName: string;
   /** API group */
   group: string;
   /** Kind name */

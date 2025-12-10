@@ -15,7 +15,7 @@ export async function ensureDirectoryExists(dir: string): Promise<void> {
 
 /**
  * Save schemas to filesystem
- * Creates directory structure: {outputDir}/{group}/{filename}
+ * Creates directory structure: {outputDir}/{group}/{kind}_{version}.json
  * Uses Bun.write() for efficient file writes
  */
 export async function saveSchemas(
@@ -29,16 +29,15 @@ export async function saveSchemas(
   for (const crd of crds) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const filePath = `${crd.group}/${filename}`;
-    const fullPath = `${outputDir}/${filePath}`;
+    const dirPath = `${outputDir}/${crd.group}`;
+    const fullPath = `${dirPath}/${filename}`;
 
-    const dirPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
     await ensureDirectoryExists(dirPath);
 
     const content = JSON.stringify(schema, null, 2);
     await Bun.write(fullPath, content);
 
-    files[filePath] = content;
+    files[`${crd.group}/${filename}`] = content;
   }
 
   return files;
@@ -124,8 +123,8 @@ export async function loadExistingSchemas(outputDir: string): Promise<Record<str
 }
 
 /**
- * Get directory structure for schemas
- * @example 'configuration.konghq.com/kongplugin_v1.json'
+ * Get filepath for schema
+ * @example 'configuration.konghq.com/kongconsumer_v1.json'
  */
 export function getSchemaPath(group: string, kind: string, version: string): string {
   const filename = generateSchemaFilename(kind, version);
