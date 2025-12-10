@@ -50,6 +50,7 @@ jobs:
 
       - name: Run sync with PR creation
         if: github.event_name == 'workflow_dispatch' && inputs.createPR
+        id: sync
         run: bun src/index.ts
         env:
           CRD_SYNC_OUTPUT_DIR: "./schemas"
@@ -58,6 +59,15 @@ jobs:
           CRD_SYNC_DRY_RUN: ${{ inputs.dryRun }}
           CRD_SYNC_VERBOSE: "true"
           GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
+
+      - name: Add PR link to summary
+        if: github.event_name == 'workflow_dispatch' && inputs.createPR && steps.sync.outputs.pr-url
+        run: |
+          echo "## CRD Schema Sync Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Schemas synced successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Pull Request](${{ steps.sync.outputs.pr-url }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload schemas artifact
         if: always()

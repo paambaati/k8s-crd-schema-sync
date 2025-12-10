@@ -147,7 +147,7 @@ if (import.meta.main) {
   }
 
   /* oxlint-disable no-console */
-  runSync(cliConfig).then((result) => {
+  runSync(cliConfig).then(async (result) => {
     console.log('\n📋 Sync Summary:');
     console.log(`   CRDs fetched: ${result.generatedSchemas.length}`);
     console.log(`   Changed schemas: ${result.changedSchemas.length}`);
@@ -155,6 +155,12 @@ if (import.meta.main) {
 
     if (result.prUrl) {
       console.log(`   PR: ${result.prUrl}`);
+      // Output PR URL for GitHub Actions
+      if (process.env.GITHUB_OUTPUT) {
+        const outputFile = Bun.file(process.env.GITHUB_OUTPUT);
+        const existing = await outputFile.text().catch(() => '');
+        await Bun.write(outputFile, existing + `pr-url=${result.prUrl}\n`);
+      }
     }
     if (result.errors.length > 0) {
       console.log(`   Errors: ${result.errors.length}`);
