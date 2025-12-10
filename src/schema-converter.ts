@@ -94,6 +94,11 @@ function convertSchema(schema: unknown): Partial<JSONSchema> {
     for (const [key, value] of Object.entries(obj.properties)) {
       (result.properties as Record<string, unknown>)[key] = convertSchema(value);
     }
+    // Set additionalProperties to false for objects with properties (strict validation)
+    // This matches the behavior of openapi2jsonschema.py (https://github.com/yannh/kubeconform/blob/master/scripts/openapi2jsonschema.py)
+    if (result.additionalProperties === undefined) {
+      result.additionalProperties = false;
+    }
   }
 
   if (obj.additionalProperties !== undefined) {
