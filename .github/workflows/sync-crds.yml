@@ -34,7 +34,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --production --frozen-lockfile
 
       - name: Download CRDs
         if: github.event_name == 'schedule' || inputs.dryRun
