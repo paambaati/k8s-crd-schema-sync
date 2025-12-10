@@ -29,8 +29,7 @@ export async function saveSchemas(
   for (const crd of crds) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const groupDir = crd.group.replace(/\./g, '/');
-    const filePath = `${groupDir}/${filename}`;
+    const filePath = `${crd.group}/${filename}`;
     const fullPath = `${outputDir}/${filePath}`;
 
     const dirPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
@@ -59,8 +58,7 @@ export async function detectChangedSchemas(
   for (const crd of newCRDs) {
     const schema = convertOpenAPIv3ToJSONSchema(crd.openAPIV3Schema);
     const filename = generateSchemaFilename(crd.kind, crd.version);
-    const groupDir = crd.group.replace(/\./g, '/');
-    const filePath = `${outputDir}/${groupDir}/${filename}`;
+    const filePath = `${outputDir}/${crd.group}/${filename}`;
 
     const f = Bun.file(filePath);
     if (!(await f.exists())) {
@@ -127,10 +125,9 @@ export async function loadExistingSchemas(outputDir: string): Promise<Record<str
 
 /**
  * Get directory structure for schemas
- * @example 'configuration/konghq/com/kongplugin_v1.json'
+ * @example 'configuration.konghq.com/kongplugin_v1.json'
  */
 export function getSchemaPath(group: string, kind: string, version: string): string {
   const filename = generateSchemaFilename(kind, version);
-  const groupDir = group.replace(/\./g, '/');
-  return `${groupDir}/${filename}`;
+  return `${group}/${filename}`;
 }

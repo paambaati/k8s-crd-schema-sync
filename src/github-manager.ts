@@ -179,7 +179,7 @@ export class GitHubManager {
         path,
         content,
         options.branchName,
-        `Add/update schema: ${path}`
+        `chore: add/update schema ${path}`
       );
     }
 
