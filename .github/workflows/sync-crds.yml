@@ -41,9 +41,9 @@ jobs:
         run: bun src/index.ts download --verbose --work-dir "./schemas"
 
       - name: Publish CRD schemas via PR
-        if: github.event_name == 'workflow_dispatch' && !inputs.dryRun
+        if: github.event_name == 'workflow_dispatch'
         id: sync
-        run: bun src/index.ts publish --verbose --work-dir "./schemas" --targetrepo "${{ inputs.targetRepo || 'paambaati/CRDs-catalog' }}" --dry-run ${{ inputs.dryRun }}
+        run: bun src/index.ts publish --verbose --work-dir "./schemas" --target-repo "${{ inputs.targetRepo || 'paambaati/CRDs-catalog' }}" ${{ inputs.dryRun && '--dry-run' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.CRD_GITHUB_TOKEN }}
 

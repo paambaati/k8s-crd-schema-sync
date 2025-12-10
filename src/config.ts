@@ -146,8 +146,8 @@ export function parseConfigFromCLI(args: Array<string>): CLIParsedResult {
       if (options.verbose) {
         result.config.verbose = true;
       }
-      if (options.dryRun) {
-        result.config.dryRun = true;
+      if (options.dryRun !== undefined) {
+        result.config.dryRun = options.dryRun;
       }
       if (options.workDir) {
         result.config.workDir = options.workDir;
