@@ -49,7 +49,7 @@ bun src/index.ts dump -o /tmp/schemas
 - Reads kubeconfig from `$KUBECONFIG` or `~/.kube/config`.
 - Uses the current context unless specified.
 - Directly calls Kubernetes API to fetch all CRDs.
-- No external dependencies (kubectl CLI not required).
+- No external dependencies (`kubectl` CLI not required).
 
 #### Download from Sources
 
