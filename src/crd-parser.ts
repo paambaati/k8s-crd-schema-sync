@@ -1,6 +1,6 @@
 /**
- * Fetch and parse Kubernetes CRDs from remote sources or clusters
- * Uses Bun.fetch() for HTTP requests and direct K8s API for clusters
+ * Fetch and parse Kubernetes CRDs from remote sources or clusters.
+ * Uses direct HTTP requests to the K8s API for clusters.
  */
 
 import YAML from 'yaml';
