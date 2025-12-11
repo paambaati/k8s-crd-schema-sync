@@ -106,18 +106,18 @@ kcss publish -t owner/repo -b main
 
 Configuration is loaded with the following precedence (lowest to highest) –
 1. **Defaults** - Built-in defaults.
-2. **Environment Variables** - `KCSS_SYNC_*` variables.
+2. **Environment Variables** - `KCSS_*` variables.
 3. **CLI Flags** - Command-line arguments override everything.
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `KCSS_SYNC_DRY_RUN` | `false` | Dry run mode (don't create PR) |
-| `KCSS_SYNC_VERBOSE` | `false` | Verbose logging |
-| `KCSS_SYNC_WORK_DIR` | `./schemas` | Output directory for schemas |
-| `KCSS_SYNC_TARGET_REPO` | `datreeio/CRDs-catalog` | Target GitHub repo |
-| `KCSS_SYNC_TARGET_BRANCH` | `main` | Target branch |
+| `KCSS_DRY_RUN` | `false` | Dry run mode (don't create PR) |
+| `KCSS_VERBOSE` | `false` | Verbose logging |
+| `KCSS_WORK_DIR` | `./schemas` | Output directory for schemas |
+| `KCSS_TARGET_REPO` | `datreeio/CRDs-catalog` | Target GitHub repo |
+| `KCSS_TARGET_BRANCH` | `main` | Target branch |
 | `GITHUB_TOKEN` | - | GitHub PAT (required for PR creation) |
 | `KUBECONFIG` | `~/.kube/config` | Kubeconfig file path (for cluster dump) |
 
