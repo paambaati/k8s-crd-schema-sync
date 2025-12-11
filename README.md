@@ -1,4 +1,4 @@
-# CRD Schema Sync
+# `k8s` CRD Schema Sync (`kcss`)
 
 Automated tool for generating and syncing Kubernetes Custom Resource Definition (CRD) JSON schemas to public CRD catalogs like [`datreeio/CRDs-catalog`](https://github.com/datreeio/CRDs-catalog).
 
@@ -12,6 +12,31 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via `
 - GitHub personal access token (optional, for PR creation)
 - `kubectl` configured and authenticated (optional, for cluster dump)
 
+### Install
+
+#### Download Prebuilt Binary
+
+Download the appropriate binary for your system from the [releases page](https://github.com/paambaati/k8s-crd-schema-sync/releases).
+
+Then make it executable and rename it –
+
+```bash
+chmod +x kcss-linux-x64
+mv kcss-linux-x64 kcss
+sudo mv kcss /usr/local/bin/  # Optional – move to $PATH.
+```
+
+#### Build from Source
+
+If you have [Bun](https://bun.sh/) installed –
+
+```bash
+git clone https://github.com/paambaati/k8s-crd-schema-sync.git
+cd k8s-crd-schema-sync
+bun install
+bun run build  # or 'bun run build:all' for all platforms
+```
+
 ### Usage
 
 #### Sub-Commands
@@ -20,29 +45,29 @@ The tool now supports three sub-commands for fine-grained control –
 
 ```bash
 # Dump CRDs directly from a Kubernetes cluster
-bun src/index.ts dump [context]
+kcss dump [context]
 
 # Download CRDs from configured URL sources
-bun src/index.ts download
+kcss download
 
 # Publish schemas to a GitHub repository via PR
-bun src/index.ts publish
+kcss publish
 ```
 
 #### Dump from Kubernetes Cluster
 
 ```bash
 # Dump from current kubectl context
-bun src/index.ts dump
+kcss dump
 
 # Dump from specific context
-bun src/index.ts dump my-kube-context
+kcss dump my-kube-context
 
 # Verbose output
-bun src/index.ts dump --verbose
+kcss dump --verbose
 
 # Dump to custom output directory
-bun src/index.ts dump -o /tmp/schemas
+kcss dump -o /tmp/schemas
 ```
 
 **How this works**
@@ -55,50 +80,44 @@ bun src/index.ts dump -o /tmp/schemas
 
 ```bash
 # Download from configured sources
-bun src/index.ts download
+kcss download
 
 # With verbose output
-bun src/index.ts download --verbose
+kcss download --verbose
 
 # Download to custom output directory
-bun src/index.ts download -o /tmp/schemas
+kcss download -o /tmp/schemas
 ```
 
 #### Publish to GitHub
 
 ```bash
 # Create PR with changes (requires GITHUB_TOKEN)
-bun src/index.ts publish
+kcss publish
 
 # Dry run (shows what would be published)
-bun src/index.ts publish --dry-run
+kcss publish --dry-run
 
 # With custom target repo and branch
-bun src/index.ts publish -t owner/repo -b main
+kcss publish -t owner/repo -b main
 ```
-
-#### GitHub Actions
-
-The included GitHub Actions workflow runs on –
-- **Schedule** – Weekly (Monday at 00:00 UTC).
-- **Manual** – Via `workflow_dispatch`.
 
 ## Configuration
 
 Configuration is loaded with the following precedence (lowest to highest) –
 1. **Defaults** - Built-in defaults.
-2. **Environment Variables** - `CRD_SYNC_*` variables.
+2. **Environment Variables** - `KCSS_SYNC_*` variables.
 3. **CLI Flags** - Command-line arguments override everything.
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CRD_SYNC_DRY_RUN` | `false` | Dry run mode (don't create PR) |
-| `CRD_SYNC_VERBOSE` | `false` | Verbose logging |
-| `CRD_SYNC_OUTPUT_DIR` | `./schemas` | Output directory for schemas |
-| `CRD_SYNC_TARGET_REPO` | `datreeio/CRDs-catalog` | Target GitHub repo |
-| `CRD_SYNC_TARGET_BRANCH` | `main` | Target branch |
+| `KCSS_SYNC_DRY_RUN` | `false` | Dry run mode (don't create PR) |
+| `KCSS_SYNC_VERBOSE` | `false` | Verbose logging |
+| `KCSS_SYNC_WORK_DIR` | `./schemas` | Output directory for schemas |
+| `KCSS_SYNC_TARGET_REPO` | `datreeio/CRDs-catalog` | Target GitHub repo |
+| `KCSS_SYNC_TARGET_BRANCH` | `main` | Target branch |
 | `GITHUB_TOKEN` | - | GitHub PAT (required for PR creation) |
 | `KUBECONFIG` | `~/.kube/config` | Kubeconfig file path (for cluster dump) |
 

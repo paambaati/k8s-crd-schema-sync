@@ -5,3 +5,4 @@ dist/
 schemas/
 *.log
 .DS_Store
+dist/
