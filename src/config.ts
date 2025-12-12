@@ -54,12 +54,12 @@ export function getDefaultConfig(): SyncConfig {
 
 export function loadConfigFromEnv(): Partial<SyncConfig> {
   return {
-    dryRun: process.env.CRD_SYNC_DRY_RUN === 'true',
-    verbose: process.env.CRD_SYNC_VERBOSE === 'true',
+    dryRun: process.env.KCSS_DRY_RUN === 'true',
+    verbose: process.env.KCSS_VERBOSE === 'true',
     githubToken: process.env.GITHUB_TOKEN,
-    workDir: process.env.CRD_SYNC_WORK_DIR || './schemas',
-    targetRepo: process.env.CRD_SYNC_TARGET_REPO || 'datreeio/CRDs-catalog',
-    targetBranch: process.env.CRD_SYNC_TARGET_BRANCH || 'main',
+    workDir: process.env.KCSS_WORK_DIR || './schemas',
+    targetRepo: process.env.KCSS_TARGET_REPO || 'datreeio/CRDs-catalog',
+    targetBranch: process.env.KCSS_TARGET_BRANCH || 'main',
   };
 }
 
@@ -72,7 +72,7 @@ export function mergeConfigs(base: SyncConfig, overrides: Partial<SyncConfig>): 
 }
 
 export function parseConfigFromCLI(args: Array<string>): CLIParsedResult {
-  const cli = cac('crd-schema-sync');
+  const cli = cac('kcss');
 
   const result: CLIParsedResult = {
     command: undefined,
