@@ -16,28 +16,5 @@
       "version-file": "package.json",
       "release-type": "node"
     }
-  },
-  "plugins": [
-    {
-      "type": "github",
-      "releaseAssets": [
-        {
-          "path": "dist/kcss-*-linux-x64*",
-          "type": "application/octet-stream"
-        },
-        {
-          "path": "dist/kcss-*-linux-arm64*",
-          "type": "application/octet-stream"
-        },
-        {
-          "path": "dist/kcss-*-darwin-x64",
-          "type": "application/octet-stream"
-        },
-        {
-          "path": "dist/kcss-*-darwin-arm64",
-          "type": "application/octet-stream"
-        }
-      ]
-    }
-  ]
+  }
 }
