@@ -48,32 +48,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload binaries to workflow artifacts
+      - name: Upload binaries to release (workflow dispatch)
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries
-          path: dist/kcss-*
-          retention-days: 5
-
-  create-release:
-    name: Create Release with Binaries
-    needs: build
-    runs-on: ubuntu-slim
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: binaries
-          path: dist
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.inputs.tag }}
-          files: dist/kcss-*
-          draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.inputs.tag }} dist/kcss-*
+
