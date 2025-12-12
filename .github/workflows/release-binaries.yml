@@ -20,12 +20,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -35,14 +35,9 @@ jobs:
       - name: Build binaries
         run: bun run build:all
 
-      - name: Verify binaries
-        run: |
-          ls -lh dist/
-          file dist/kcss-*
-
       - name: Upload binaries to release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/kcss-*
         env:
@@ -53,4 +48,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.inputs.tag }} dist/kcss-*
-
