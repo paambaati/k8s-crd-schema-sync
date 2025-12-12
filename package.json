@@ -1,7 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/package.json",
     "name": "k8s-crd-schema-sync",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "Automated k8s CRD schema generation and syncing to public CRD catalogs",
     "type": "module",
     "main": "./src/index.ts",
