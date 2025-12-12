@@ -19,10 +19,6 @@
   },
   "plugins": [
     {
-      "type": "commit-and-tag-version",
-      "upgradeType": "standard"
-    },
-    {
       "type": "github",
       "releaseAssets": [
         {
