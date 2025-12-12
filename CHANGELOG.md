@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/paambaati/k8s-crd-schema-sync/compare/k8s-crd-schema-sync-v0.2.0...k8s-crd-schema-sync-v0.2.1) (2025-12-12)
+
+
+### Bug Fixes
+
+* **ci/cd:** redesign the confusing workflows ([6aa75d2](https://github.com/paambaati/k8s-crd-schema-sync/commit/6aa75d21b02e5a8b83365b95b28172bf2a092823))
+
 ## [0.2.0](https://github.com/paambaati/k8s-crd-schema-sync/compare/k8s-crd-schema-sync-v0.1.0...k8s-crd-schema-sync-v0.2.0) (2025-12-12)
 
 
