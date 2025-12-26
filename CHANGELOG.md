@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/paambaati/k8s-crd-schema-sync/compare/k8s-crd-schema-sync-v0.2.2...k8s-crd-schema-sync-v0.3.0) (2025-12-26)
+
+
+### Features
+
+* **ci:** set up CI-only integration test with actual k8s cluster ([bde7d5c](https://github.com/paambaati/k8s-crd-schema-sync/commit/bde7d5c294ec9a14fbd9bdd2e877f5194f431f1d))
+* **test:** add tests + refactor core for testability ([1b72e76](https://github.com/paambaati/k8s-crd-schema-sync/commit/1b72e767af5d87739a9fbfed7067448b6889665b))
+* tests 🧑🏽‍🔬 ([#6](https://github.com/paambaati/k8s-crd-schema-sync/issues/6)) ([b9dcd06](https://github.com/paambaati/k8s-crd-schema-sync/commit/b9dcd0647c77040bf8cfc38277d2a0c2517e0a56))
+
+
+### Bug Fixes
+
+* **core:** support mTLS config in kubeconfig ([daa5a53](https://github.com/paambaati/k8s-crd-schema-sync/commit/daa5a5354440dabcde8eac97439b280dd48bb4d0))
+
 ## [0.2.2](https://github.com/paambaati/k8s-crd-schema-sync/compare/k8s-crd-schema-sync-v0.2.1...k8s-crd-schema-sync-v0.2.2) (2025-12-12)
 
 
