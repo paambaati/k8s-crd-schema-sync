@@ -1,20 +1,13 @@
-import { tmpdir } from 'os';
+import { tmpdir } from 'node:os';
 import { mkdir, rm } from 'node:fs/promises';
 
 export function stubFetch(fn: (input: RequestInfo, init?: RequestInit) => Promise<Response>) {
   const originalGlobalFetch = globalThis.fetch;
-  // do not attempt to touch Bun.fetch (may be readonly)
-
-  // override global fetch
-  // @ts-ignore
+  // @ts-ignore -- We're overriding global fetch, but this is only for tests, so this is okay.
   globalThis.fetch = fn;
-  // don't attempt to override Bun.fetch (readonly); tests and code use global fetch now
 
   return () => {
-    // restore global fetch
-    // @ts-ignore
     globalThis.fetch = originalGlobalFetch;
-    // don't attempt to restore Bun.fetch
   };
 }
 
