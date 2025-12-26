@@ -204,6 +204,22 @@ export async function fetchCRDsFromCluster(
       }
     }
 
+    // Include client certificate/key for mTLS if provided in kubeconfig.
+    if (authConfig.cert && authConfig.key) {
+      try {
+        const certPem = await Bun.file(authConfig.cert).text();
+        const keyPem = await Bun.file(authConfig.key).text();
+        fetchOptions.tls = {
+          ...fetchOptions.tls,
+          cert: certPem,
+          key: keyPem,
+        } as any;
+        logger.debug(`Using client certificate/key from ${authConfig.cert} and ${authConfig.key}`);
+      } catch (error) {
+        logger.warn(`Failed to read client cert/key: ${error}`);
+      }
+    }
+
     const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
