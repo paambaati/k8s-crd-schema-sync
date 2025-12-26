@@ -1,0 +1,56 @@
+name: Integration tests
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  integration:
+    name: Integration tests (k3d)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Install k3d
+        run: |
+          sudo curl -sLo /usr/local/bin/k3d https://github.com/k3d-io/k3d/releases/latest/download/k3d
+          sudo chmod +x /usr/local/bin/k3d
+          k3d --version
+
+      - name: Create k3d cluster
+        run: |
+          sudo k3d cluster create kcss-test --wait
+          k3d kubeconfig get kcss-test > kubeconfig
+          echo "KUBECONFIG=$PWD/kubeconfig" >> $GITHUB_ENV
+
+      - name: Wait for nodes
+        run: |
+          for i in $(seq 1 30); do
+            kubectl --kubeconfig=$PWD/kubeconfig get nodes && break || sleep 2
+          done
+
+      - name: Apply test CRDs
+        run: kubectl --kubeconfig=$PWD/kubeconfig apply -f test/fixtures/simple-crd.yaml
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run integration tests
+        run: RUN_INTEGRATION=true bun test --testPathPattern=test/integration
+
+      - name: Cleanup k3d cluster
+        if: always()
+        run: |
+          k3d cluster delete kcss-test || true
