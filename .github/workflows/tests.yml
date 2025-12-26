@@ -27,7 +27,7 @@ jobs:
 
   integration:
     name: Integration tests
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -44,13 +44,13 @@ jobs:
 
       - name: Install k3d
         run: |
-          sudo curl -sLo /usr/local/bin/k3d https://github.com/k3d-io/k3d/releases/latest/download/k3d-linux-amd64
-          sudo chmod +x /usr/local/bin/k3d
+          curl -sLo /usr/local/bin/k3d https://github.com/k3d-io/k3d/releases/latest/download/k3d-linux-amd64
+          chmod +x /usr/local/bin/k3d
           k3d --version
 
       - name: Create k3d cluster
         run: |
-          sudo k3d cluster create kcss-test --wait
+          k3d cluster create kcss-test --wait
           k3d kubeconfig get kcss-test > kubeconfig
           echo "KUBECONFIG=$PWD/kubeconfig" >> $GITHUB_ENV
 
