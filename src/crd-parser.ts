@@ -20,7 +20,7 @@ export async function fetchCRDs(source: CRDSource): Promise<Array<K8sCRD>> {
 
 async function fetchCRDsFromURL(source: URLCRDSource): Promise<Array<K8sCRD>> {
   try {
-    const response = await Bun.fetch(source.url);
+    const response = await fetch(source.url);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

@@ -3,3 +3,9 @@ telemetry = false
 [install]
 exact = true
 auto = "auto"
+
+[test]
+coverage = true
+coveragePathIgnorePatterns = [
+    "src/index.ts"
+]

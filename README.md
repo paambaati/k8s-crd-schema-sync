@@ -8,7 +8,6 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via `
 
 ### Prerequisites
 
-- Bun >= 1.0.0
 - GitHub personal access token (optional, for PR creation)
 - `kubectl` configured and authenticated (optional, for cluster dump)
 
@@ -16,13 +15,11 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via `
 
 #### Download Prebuilt Binary
 
-Download the appropriate binary for your system from the [releases page](https://github.com/paambaati/k8s-crd-schema-sync/releases).
-
-Then make it executable and rename it –
+Download the appropriate binary for your operating system from the [releases page](https://github.com/paambaati/k8s-crd-schema-sync/releases).
 
 ```bash
-chmod +x kcss-linux-x64
-mv kcss-linux-x64 kcss
+curl -fsL -o kcss https://github.com/paambaati/k8s-crd-schema-sync/releases/latest/download/kcss-linux-x64
+chmod +x kcss
 sudo mv kcss /usr/local/bin/  # Optional – move to $PATH.
 ```
 
