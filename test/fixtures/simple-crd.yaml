@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   name: widgets.examples.k8s.io
   annotations:
-    api-approved.kubernetes.io: "2025-12-26"
+    api-approved.kubernetes.io: 'https://example.com/approval/widgets-examples'
 spec:
   group: examples.k8s.io
   names:
