@@ -6,3 +6,4 @@ schemas/
 *.log
 .DS_Store
 dist/
+kubeconfig*
