@@ -8,7 +8,6 @@ Supports both URL-based sources and direct Kubernetes cluster connectivity via `
 
 ### Prerequisites
 
-- Bun >= 1.0.0
 - GitHub personal access token (optional, for PR creation)
 - `kubectl` configured and authenticated (optional, for cluster dump)
 
