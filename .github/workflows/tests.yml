@@ -23,7 +23,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run unit tests
-        run: bun test --testPathPattern=test/unit
+        run: bun test test/unit
 
   integration:
     name: Integration tests
@@ -67,7 +67,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run integration tests
-        run: RUN_INTEGRATION=true bun test --testPathPattern=test/integration
+        run: bun test test/integration
 
       - name: Cleanup k3d cluster
         if: always()
