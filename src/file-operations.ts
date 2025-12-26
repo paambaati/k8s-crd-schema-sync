@@ -88,8 +88,9 @@ export async function detectChangedSchemas(
 export async function loadExistingSchemas(workDir: string): Promise<Record<string, unknown>> {
   const schemas: Record<string, unknown> = {};
 
-  const dirFile = Bun.file(workDir);
-  if (!(await dirFile.exists())) {
+  try {
+    readdirSync(workDir);
+  } catch {
     return schemas;
   }
 
