@@ -204,7 +204,7 @@ export async function fetchCRDsFromCluster(
       }
     }
 
-    const response = await fetch(url, fetchOptions as any);
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
