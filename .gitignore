@@ -7,3 +7,4 @@ schemas/
 .DS_Store
 dist/
 kubeconfig*
+coverage/

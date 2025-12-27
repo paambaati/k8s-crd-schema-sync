@@ -6,6 +6,7 @@ auto = "auto"
 
 [test]
 coverage = true
+coverageReporter = ["text", "lcov"]
 coveragePathIgnorePatterns = [
     "src/index.ts"
 ]
