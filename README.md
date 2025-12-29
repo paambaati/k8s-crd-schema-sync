@@ -1,5 +1,7 @@
 # `k8s` CRD Schema Sync (`kcss`)
 
+[![codecov](https://codecov.io/github/paambaati/k8s-crd-schema-sync/graph/badge.svg?token=N15NPFyTSW)](https://codecov.io/github/paambaati/k8s-crd-schema-sync)
+
 Automated tool for generating and syncing Kubernetes Custom Resource Definition (CRD) JSON schemas to public CRD catalogs like [`datreeio/CRDs-catalog`](https://github.com/datreeio/CRDs-catalog).
 
 Supports both URL-based sources and direct Kubernetes cluster connectivity via `kubectl` config.
