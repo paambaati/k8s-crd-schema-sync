@@ -25,6 +25,32 @@ jobs:
       - name: Run unit tests
         run: bun test test/unit --coverage-dir=coverage/unit
 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Install k3d
+        run: |
+          curl -sLo /usr/local/bin/k3d https://github.com/k3d-io/k3d/releases/latest/download/k3d-linux-amd64
+          chmod +x /usr/local/bin/k3d
+          k3d --version
+
+      - name: Create k3d cluster
+        run: |
+          k3d cluster create kcss-test --wait
+          k3d kubeconfig get kcss-test > kubeconfig
+          echo "KUBECONFIG=$PWD/kubeconfig" >> $GITHUB_ENV
+
+      - name: Wait for nodes
+        run: |
+          for i in $(seq 1 30); do
+            kubectl --kubeconfig=$PWD/kubeconfig get nodes && break || sleep 2
+          done
+
+      - name: Apply test CRDs
+        run: kubectl --kubeconfig=$PWD/kubeconfig apply -f test/fixtures/simple-crd.yaml
+
       - name: Run integration tests
         run: bun test test/integration --coverage-dir=coverage/integration
 
